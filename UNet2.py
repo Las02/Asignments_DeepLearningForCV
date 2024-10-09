@@ -11,6 +11,15 @@ def stable_bce_loss(y_real, y_pred):
     loss = max_val - y_real * y_pred + torch.log1p(torch.exp(-torch.abs(y_pred)))
     return torch.mean(loss)
 
+# Replace your loss function with the new dice_loss
+def dice_loss(y_real, y_pred):
+    y_pred = torch.sigmoid(y_pred)
+    intersection = y_pred * y_real
+    numerator = torch.mean(2 * intersection + 1)
+    denominator = torch.mean(y_pred + y_real) + 1
+    loss = 1 - numerator / denominator
+    return loss
+
 def focal_loss_chatten(y_real, y_pred, alpha=1, gamma=2):
     sigmoid_pred = torch.sigmoid(y_pred)
     
