@@ -1,3 +1,5 @@
+#USE THIS 
+
 import os
 import glob
 from PIL import Image
@@ -9,11 +11,11 @@ class DRIVE_Dataset(torch.utils.data.Dataset):
         'Initialization'
         self.transform = transform
 
-        # Find alle billed- og maskestier
+        # Find Images and mask paths:))
         self.image_dir = os.path.join(data_path, 'training/images')
-        self.mask_dir = os.path.join(data_path, 'training/mask')
+        self.mask_dir = os.path.join(data_path, 'training/1st_manual')
         self.image_paths = sorted(glob.glob(os.path.join(self.image_dir, '*.tif')))
-        self.mask_paths = sorted(glob.glob(os.path.join(self.mask_dir, '*_mask.gif')))
+        self.mask_paths = sorted(glob.glob(os.path.join(self.mask_dir, '*_manual1.gif')))
 
     def __len__(self):
         'Returns the total number of samples'
@@ -36,7 +38,7 @@ class DRIVE_Dataset(torch.utils.data.Dataset):
 
 # Define transformations
 transform = transforms.Compose([
-    transforms.Resize((256, 256)),  #Image_size
+    transforms.Resize((500, 500)),  #Image_size
     transforms.ToTensor(),  # Convert til tensor
 ])
 
