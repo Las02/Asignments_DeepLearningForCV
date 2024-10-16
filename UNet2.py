@@ -1,3 +1,8 @@
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 def bce_total_variation(y_real, y_pred):
     sigmoid_pred = torch.sigmoid(y_pred)
     diff_i  = abs(sigmoid_pred[1:, :] - sigmoid_pred[:-1, :])

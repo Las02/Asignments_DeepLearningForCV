@@ -36,9 +36,8 @@ class DRIVE_Dataset(torch.utils.data.Dataset):
 
         return image, mask
 
-# Define transformations
+# Define transformations, deleted: #Image_sizetransforms.Resize((500, 500)),
 transform = transforms.Compose([
-    transforms.Resize((500, 500)),  #Image_size
     transforms.ToTensor(),  # Convert til tensor
 ])
 
