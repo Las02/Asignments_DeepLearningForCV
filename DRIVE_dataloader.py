@@ -38,7 +38,7 @@ class DRIVE_Dataset(torch.utils.data.Dataset):
 
 # Define transformations
 transform = transforms.Compose([
-    transforms.Resize((500, 500)),  #Image_size
+   # transforms.Resize((510, 510)),  #Image_size
     transforms.ToTensor(),  # Convert til tensor
 ])
 
