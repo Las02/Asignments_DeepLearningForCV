@@ -146,3 +146,44 @@ def test(model, test_loader, loss_fn):
     
     
     
+
+def visualize_test_predictions(model, test_loader, device, num_images=4):
+    model.eval()  # Set the model to evaluation mode
+    X_test_batch, Y_test_batch = next(iter(test_loader))  # Fetch a batch of test data
+    X_test_batch = X_test_batch.to(device)
+    Y_test_batch = Y_test_batch.to(device)
+
+    # Get predictions
+    with torch.no_grad():
+        Y_test_pred = model(X_test_batch)
+        Y_test_pred = torch.sigmoid(Y_test_pred).detach().cpu()  # Apply sigmoid and move to CPU
+
+    # Plotting
+    fig, axs = plt.subplots(3, num_images, figsize=(16, 10))  # Larger figure for clearer view
+
+    # Set a nicer colormap
+    cmap = 'inferno'  # Try using 'plasma', 'magma', 'inferno', etc.
+    
+    for k in range(num_images):  # Visualize the specified number of images
+        # Original images
+        axs[0, k].imshow(np.rollaxis(X_test_batch[k].cpu().numpy(), 0, 3), cmap='gray')
+        axs[0, k].axis('off')
+
+        # Ground truth images
+        axs[1, k].imshow(Y_test_batch[k].cpu().numpy().squeeze(), cmap='gray')  # Squeeze to remove the channel dimension
+        axs[1, k].axis('off')
+
+        # Predicted images with a colorful colormap
+        img = axs[2, k].imshow(Y_test_pred[k, 0], cmap='gray')  # Apply chosen colormap
+        axs[2, k].axis('off')
+
+    # Add rotated labels outside the subplots using fig.text
+    fig.text(0.04, 0.82, 'Original', fontsize=30, rotation=90, va='center', color = 'white')
+    fig.text(0.04, 0.5, 'Ground Truth', fontsize=30, rotation=90, va='center' , color = 'white')
+    fig.text(0.04, 0.18, 'Prediction', fontsize=30, rotation=90, va='center', color = 'white')
+
+
+    # Adjust layout to avoid overlap
+    plt.subplots_adjust(wspace=0.1, hspace=0.2)  # Adjust spacing between plots
+    plt.tight_layout(rect=[0, 0, 0.9, 1])  # Leave space for colorbar on the right
+    plt.show()
