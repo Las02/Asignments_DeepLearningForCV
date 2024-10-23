@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-
+# performance metrics. Now thresholded. 
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
     # Thresholding for binary masks
     y_pred = (y_pred > 0.5).float()

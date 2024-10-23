@@ -50,8 +50,8 @@ train_transform = transforms.Compose([transforms.Resize((size, size)),
 
 Full_set = PH2(transform=train_transform)
 
-train_val_set, test_set =  torch.utils.data.random_split(Full_set, [180, 20])
-train_set, val_set = torch.utils.data.random_split(train_val_set, [150, 30])
+train_val_set, test_set =  torch.utils.data.random_split(Full_set, [180, 20]) # 200 total 10 to test
+train_set, val_set = torch.utils.data.random_split(train_val_set, [150, 30]) # 150 for training and 30 for validation
 
 test_loader = DataLoader(test_set,batch_size= 5 , shuffle=False, num_workers=3)
 train_loader = DataLoader(train_set,batch_size= 17, shuffle=False, num_workers=3)
