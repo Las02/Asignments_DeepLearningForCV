@@ -44,24 +44,24 @@ class UNet2(nn.Module):
         self.enc_conv0 = nn.Conv2d(3, 64, kernel_size=3, padding=1)
         self.pool0 = nn.Conv2d(64, 64,kernel_size=3,stride=2, padding=1)  # 110 -> 55
         self.enc_conv1 = nn.Conv2d(64, 128,kernel_size= 3, padding=1,)
-        self.pool1 = nn.Conv2d(128, 128,kernel_size=3, stride=2,padding=1)  # 55 -> 27
+        self.pool1 = nn.Conv2d(128, 128,kernel_size=3, stride=2,padding=1)  # 55 -> 28
         self.enc_conv2 = nn.Conv2d(128, 256, kernel_size=3, padding=1)
-        self.pool2 = nn.Conv2d(256, 256,kernel_size=3, stride=2,padding=1)  # 27 -> 13
+        self.pool2 = nn.Conv2d(256, 256,kernel_size=3, stride=2,padding=1)  # 28 -> 14
         self.enc_conv3 = nn.Conv2d(256, 512, kernel_size=3, padding=1)
-        self.pool3 = nn.Conv2d(512, 512,kernel_size=3, stride=2,padding=1)  # 13 -> 6
+        self.pool3 = nn.Conv2d(512, 512,kernel_size=3, stride=2,padding=1)  # 14 -> 7
 
         # bottleneck
         self.bottleneck_conv = nn.Conv2d(512, 1024, 3, padding=1)
 
         # decoder (upsampling)
-        self.upsample0 = nn.ConvTranspose2d(1024,1024,2,stride = 2, padding = 0)# 6 -> 12
+        self.upsample0 = nn.ConvTranspose2d(1024,1024,2,stride = 2, padding = 0)# 7 -> 14
         self.upsample0match = nn.Upsample(13)  # 12 -> 13  
         
-        self.upsample1 = nn.ConvTranspose2d(512,512,2,stride = 2, padding = 0) # 13 -> 26
+        self.upsample1 = nn.ConvTranspose2d(512,512,2,stride = 2, padding = 0) # 14 -> 28
         self.upsample1match = nn.Upsample(27)  # 26 -> 27  
         
-        self.upsample2 = nn.ConvTranspose2d(256,256,2,stride = 2, padding = 0)  # 27 -> 54
-        self.upsample2match = nn.Upsample(55)  # 54 -> 55  
+        self.upsample2 = nn.ConvTranspose2d(256,256,2,stride = 2, padding = 0)  # 28 -> 56
+        self.upsample2match = nn.Upsample(55)  # 56 -> 55  
         
         
         self.upsample3 = nn.ConvTranspose2d(128,128,2,stride = 2, padding = 0) # 55 -> 110 
@@ -75,30 +75,50 @@ class UNet2(nn.Module):
         self.final_conv = nn.Conv2d(64, 1, 1)  # 1x1 convolution for binary segmentation
 
     def forward(self, x):
-        # encoder
+    # encoder
         e0 = F.relu(self.enc_conv0(x))
         e1 = F.relu(self.enc_conv1(self.pool0(e0)))
         e2 = F.relu(self.enc_conv2(self.pool1(e1)))
         e3 = F.relu(self.enc_conv3(self.pool2(e2)))
 
-        # bottleneck
+    # bottleneck
         b = F.relu(self.bottleneck_conv(self.pool3(e3)))
 
-        # decoder
-        d0 = F.relu(self.dec_conv0(torch.cat([self.upsample0match(self.upsample0(b)), e3], dim=1)))
-        d1 = F.relu(self.dec_conv1(torch.cat([self.upsample1match(self.upsample1(d0)), e2], dim=1)))
-        d2 = F.relu(self.dec_conv2(torch.cat([self.upsample2match(self.upsample2(d1)), e1], dim=1)))
-        d3 = F.relu(self.dec_conv3(torch.cat([self.upsample3(d2), e0], dim=1)))
+    # decoder
+        up_b = self.upsample0(b)
+        print("Shape of upsampled b:", up_b.shape)
+        print("Shape of e3:", e3.shape)
+    
+        d0 = F.relu(self.dec_conv0(torch.cat([up_b, e3], dim=1)))
+
+        up_d0 = self.upsample1(d0)
+        print("Shape of upsampled d0:", up_d0.shape)
+        print("Shape of e2:", e2.shape)
+    
+        d1 = F.relu(self.dec_conv1(torch.cat([up_d0, e2], dim=1)))
+
+        up_d1 = self.upsample2(d1)
+        print("Shape of upsampled d1:", up_d1.shape)
+        print("Shape of e1:", e1.shape)
+    
+        # Modify d2 to match e1 size, self.upsample2match 
+        #d2 = F.relu(self.dec_conv2(torch.cat([up_d1, e2], dim=1)))
+        d2 = F.relu(self.dec_conv2(torch.cat([F.interpolate(self.upsample2(d1), size=(55, 55), mode='bilinear', align_corners=False), e1], dim=1)))
 
 
-        # final output layer (logits)
+        up_d2 = self.upsample3(d2)
+        print("Shape of upsampled d2:", up_d2.shape)
+        print("Shape of e0:", e0.shape)
+    
+        d3 = F.relu(self.dec_conv3(torch.cat([up_d2, e0], dim=1)))
+
+    # final output layer (logits)
         output = self.final_conv(d3)
 
         return output
 
-
 model = UNet2().to(device)
-summary(model, input_size=(3, 128,128))
+summary(model, input_size=(3, 110,110))
 
 
 
