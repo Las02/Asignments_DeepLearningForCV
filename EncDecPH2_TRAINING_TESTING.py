@@ -125,6 +125,10 @@ def test(model, test_loader, loss_fn):
     X_test_batch, Y_test_batch = next(iter(test_loader))
     Y_test_pred = F.sigmoid(model(X_test_batch.to(device))).detach().cpu()
 
+
+
+
+
     #Plot the first 4 images and their predictions
     for k in range(4):  # For example, visualize the first 4 elements
         plt.subplot(2, 6, k + 1)
