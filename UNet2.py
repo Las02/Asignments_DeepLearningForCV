@@ -47,9 +47,21 @@ def focal_loss(y_real, y_pred):
     sigmoid = lambda x: 1/(1+torch.exp(-x))
     return -torch.sum((1-sigmoid(y_pred))**2*y_real*torch.log(sigmoid(y_pred)) + (1-y_real) * torch.log(1-sigmoid(y_pred)))
 
-def bce_loss_(y_real,y_pred):
+import torch
+
+def bce_loss_weakpoints(y_real, y_pred):
+    # Create a mask for positions where y_real is 1 or 0
+    mask = (y_real == 1) | (y_real == 0)
+    
+    # Apply the mask to y_real and y_pred
+    y_real_masked = y_real[mask]
+    y_pred_masked = y_pred[mask]
+    
+    # Calculate the binary cross-entropy loss for the masked values
+    loss = torch.mean(y_pred_masked - y_real_masked * y_pred_masked + torch.log(1 + torch.exp(-y_pred_masked)))
     
     return loss
+
 
 class UNet2(nn.Module):
     def __init__(self):
