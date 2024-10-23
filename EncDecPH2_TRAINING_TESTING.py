@@ -142,7 +142,7 @@ def test(model, test_loader, loss_fn):
     plt.suptitle('Test - Loss: %f' % avg_test_loss)
     plt.show()  # This will block execution until you close the plot
     print(f'Dice: {dice:.4f}, IoU: {iou:.4f}, Accuracy: {acc:.4f}, Sensitivity: {sens:.4f}, Specificity: {spec:.4f}')
-    
+    return dice,iou,acc, sens,spec
     
     
     

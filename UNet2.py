@@ -47,6 +47,10 @@ def focal_loss(y_real, y_pred):
     sigmoid = lambda x: 1/(1+torch.exp(-x))
     return -torch.sum((1-sigmoid(y_pred))**2*y_real*torch.log(sigmoid(y_pred)) + (1-y_real) * torch.log(1-sigmoid(y_pred)))
 
+def bce_loss_(y_real,y_pred):
+    
+    return loss
+
 class UNet2(nn.Module):
     def __init__(self):
         super(UNet2, self).__init__()
